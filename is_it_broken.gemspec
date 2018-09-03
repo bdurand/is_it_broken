@@ -1,4 +1,6 @@
 # coding: utf-8
+# TODO update me
+
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
