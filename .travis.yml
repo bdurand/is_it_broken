@@ -1,1 +1,14 @@
 language: ruby
+rvm:
+  - 2.5
+
+cache: bundler
+
+branches:
+  # Only build master and release version tags
+  only:
+    - master
+    - /^v\d+\.\d+(\.\d+)?(-\S*)?$/
+
+script:
+  - bundle exec rake spec

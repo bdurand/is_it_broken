@@ -1,4 +1,6 @@
 # coding: utf-8
+# frozen_string_literal: true
+
 # TODO update me
 
 lib = File.expand_path('../lib', __FILE__)
