@@ -9,7 +9,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 Gem::Specification.new do |spec|
   spec.name          = "is_it_broken"
   spec.version       = File.read(File.expand_path("../VERSION", __FILE__)).chomp
-  spec.authors       = ["Brian Durand"]
+  spec.authors       = ["Brian Durand", "Winston Durand"]
   spec.email         = ["bbdurand@gmail.com"]
   spec.summary       = "Framework for registering monitoring checks that can be activated from a web request or the command line"
   spec.description   = "Framework for registering monitoring/health checks for an application that can be activated from a web request or the command line."
