@@ -1,5 +1,9 @@
 ## Check Application Health
 
+[![Build Status](https://travis-ci.com/bdurand/is_it_broken.svg?branch=master)](https://travis-ci.com/bdurand/is_it_broken)
+[![Maintainability](https://api.codeclimate.com/v1/badges/a92d5701481268471d53/maintainability)](https://codeclimate.com/github/bdurand/is_it_broken/maintainability)
+
+
 The purpose of this gem is to provide a simple mechanism to define health checks for and application. Those health checks can then be monitored from a web endpoint or from application code.
 
 Some ways to use the health checks:
@@ -38,4 +42,3 @@ Make sure you don't have any checks that will take longer to finish than your mo
 Don't expose any information that could make your site insecure if you have publicly accessible monitoring endpoints.
 
 ## Examples
-
