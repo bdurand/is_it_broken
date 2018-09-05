@@ -1,5 +1,3 @@
-require 'thread'
-
 module IsItBroken
   # Class for holding the list of checks.
   class Configuration
