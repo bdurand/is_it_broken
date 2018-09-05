@@ -18,13 +18,14 @@ module IsItBroken
         super{ check.run(name) }
       end
     end
-    
+
     attr_reader :names
-    
-    def initialize(*names)
+
+    def initialize(config, names)
+      @config = config
       @names = names.flatten.collect(&:to_s)
     end
-    
+
     def run
       checks = []
       names.each do |name, index|
@@ -46,16 +47,16 @@ module IsItBroken
           sync_runners << SyncRunner.new(name, check)
         end
       end
-      
+
       results = (async_runners + sync_runners).collect(&:value)
       results.sort_by{ |result| order[result.name] }
     end
-    
+
     private
-    
+
     def add_check(name, checks)
       return if checks.detect{ |n, async, check| name == n }
-      check, async = IsItBroken.fetch(name)
+      check, async = @config.fetch(name)
       if check.nil?
         raise ArgumentError.new("Check not registered: #{name.inspect}")
       elsif check.is_a?(Group)
