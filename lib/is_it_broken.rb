@@ -18,22 +18,6 @@ module IsItBroken
   @@checks = {}
   @@lock = Mutex.new
 
-  class SyncRunner #:nodoc:
-    def initialize(name, check)
-      @result = check.run(name)
-    end
-
-    def value #:nodoc:
-      @result
-    end
-  end
-
-  class AsyncRunner < Thread #:nodoc:
-    def initialize(name, check)
-      super{ check.run(name) }
-    end
-  end
-
   class << self
     def register(name, check: nil, async: true, &block)
       check = Check.new(async: async, &block) if check.nil? && block
