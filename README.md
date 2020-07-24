@@ -1,7 +1,5 @@
 ![Continuous Integration](https://github.com/bdurand/is_it_broken/workflows/Continuous%20Integration/badge.svg)
-
 [![Maintainability](https://api.codeclimate.com/v1/badges/a92d5701481268471d53/maintainability)](https://codeclimate.com/github/bdurand/is_it_broken/maintainability)
-
 [![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
 
 # Is It Broken?
