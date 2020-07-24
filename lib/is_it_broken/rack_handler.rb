@@ -26,7 +26,7 @@ module IsItBroken
     private
 
     def render(results, elapsed_time) #:nodoc:
-      timestamp = Time. now
+      timestamp = Time.now
       fail = results.all? { |s| s.success? }
       headers = {
         "Content-Type" => "text/plain; charset=utf8",
