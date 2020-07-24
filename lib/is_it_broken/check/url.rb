@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'net/http'
-require 'net/https'
+require "net/http"
+require "net/https"
 
 module IsItBroken
   # Check if a URL returns a successful response. Only responses in the range 2xx or 304
@@ -50,7 +50,7 @@ module IsItBroken
       request = http_request_class.new(uri.request_uri, @headers)
       request.basic_auth(@username, @password) if @username || @password
       http = instantiate_http
-      response = http.start{ http.request(request) }
+      response = http.start { http.request(request) }
       if @allow_redirects && response.is_a?(Net::HTTPRedirect)
         location = response_location(response)
         if redirects.size >= 5
@@ -64,12 +64,17 @@ module IsItBroken
           response = perform_http_request(location, redirects)
         end
       end
+      response
     end
-    
+
     def response_location(response)
       location = response["Location"]
-      if location && !location.include?(':')
-        location = URI.parse(location) rescue nil
+      if location && !location.include?(":")
+        location = begin
+                     URI.parse(location)
+                   rescue
+                     nil
+                   end
         if location
           location.scheme = uri.scheme
           location.host = uri.host
@@ -80,23 +85,21 @@ module IsItBroken
 
     # Create an HTTP object with the options set.
     def instantiate_http(uri) #:nodoc:
-      http_class = nil
-
-      if @proxy && @proxy[:host]
-        http_class = Net::HTTP::Proxy(@proxy[:host], @proxy[:port], @proxy[:username], @proxy[:password])
+      http_class = if @proxy && @proxy[:host]
+        Net::HTTP::Proxy(@proxy[:host], @proxy[:port], @proxy[:username], @proxy[:password])
       else
-        http_class = Net::HTTP
+        Net::HTTP
       end
 
       http = http_class.new(uri.host, uri.port)
-      if uri.scheme == 'https'
+      if uri.scheme == "https"
         http.use_ssl = true
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       end
       http.open_timeout = @open_timeout
       http.read_timeout = @read_timeout
 
-      return http
+      http
     end
 
     def http_request_class #:nodoc:
@@ -109,8 +112,6 @@ module IsItBroken
         Net::HTTP::Options
       when :trace
         Net::HTTP::Trace
-      else
-        nil
       end
     end
   end

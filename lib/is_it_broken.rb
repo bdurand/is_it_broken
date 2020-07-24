@@ -1,20 +1,18 @@
 # frozen_string_literal: true
 
-require 'thread'
-require 'time'
+require "time"
 
 module IsItBroken
-
-  require_relative 'is_it_broken/check'
-  require_relative 'is_it_broken/check/file'
-  require_relative 'is_it_broken/check/ping'
-  require_relative 'is_it_broken/check/url'
-  require_relative 'is_it_broken/check_runner'
-  require_relative 'is_it_broken/configuration'
-  require_relative 'is_it_broken/group'
-  require_relative 'is_it_broken/message'
-  require_relative 'is_it_broken/rack_handler'
-  require_relative 'is_it_broken/result'
+  require_relative "is_it_broken/check"
+  require_relative "is_it_broken/check/file"
+  require_relative "is_it_broken/check/ping"
+  require_relative "is_it_broken/check/url"
+  require_relative "is_it_broken/check_runner"
+  require_relative "is_it_broken/configuration"
+  require_relative "is_it_broken/group"
+  require_relative "is_it_broken/message"
+  require_relative "is_it_broken/rack_handler"
+  require_relative "is_it_broken/result"
 
   @configuration ||= Configuration.new
 

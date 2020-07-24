@@ -31,7 +31,7 @@ module IsItBroken
       headers = {
         "Content-Type" => "text/plain; charset=utf8",
         "Cache-Control" => "no-cache",
-        "Date" => timestamp.httpdate,
+        "Date" => timestamp.httpdate
       }
 
       info = []

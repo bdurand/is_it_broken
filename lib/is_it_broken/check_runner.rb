@@ -15,7 +15,7 @@ module IsItBroken
 
     class AsyncRunner < Thread #:nodoc:
       def initialize(name, check)
-        super{ check.run(name) }
+        super { check.run(name) }
       end
     end
 
@@ -49,13 +49,13 @@ module IsItBroken
       end
 
       results = (async_runners + sync_runners).collect(&:value)
-      results.sort_by{ |result| order[result.name] }
+      results.sort_by { |result| order[result.name] }
     end
 
     private
 
     def add_check(name, checks)
-      return if checks.detect{ |n, async, check| name == n }
+      return if checks.detect { |n, async, check| name == n }
       check, async = @config.fetch(name)
       if check.nil?
         raise ArgumentError.new("Check not registered: #{name.inspect}")

@@ -31,7 +31,7 @@ module IsItBroken
     def to_s
       text = []
       messages.each do |m|
-        text << "#{m.success? ? 'OK:  ' : 'FAIL:'} #{name} - #{m.text} (#{sprintf('%0.1f', m.time * 1000)}ms)"
+        text << "#{m.success? ? "OK:  " : "FAIL:"} #{name} - #{m.text} (#{sprintf("%0.1f", m.time * 1000)}ms)"
       end
       text.join("\n")
     end

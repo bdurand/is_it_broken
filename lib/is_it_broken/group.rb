@@ -15,7 +15,7 @@ module IsItBroken
       check_names = []
       names.flatten.collect(&:to_s).each do |name|
         next if check_names.include?(name)
-        check, async = config.fetch(name)
+        check, _async = config.fetch(name)
         if check.nil?
           raise ArgumentError.new("Check not registered: #{name.inspect}")
         elsif check.is_a?(Group)
