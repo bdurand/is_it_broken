@@ -10,7 +10,7 @@ end
 group :development, :test do
   gem "rake"
   gem "rspec", "~> 3.9"
-  
+
   # Lock standard to a particular version, esp. cause it's still 0.x.x according to Semver
   gem "standard", "0.4.7" if RUBY_VERSION.to_f >= 2.4
 end
