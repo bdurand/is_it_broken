@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module IsItBroken
   # Class for holding the list of checks.
   class Configuration

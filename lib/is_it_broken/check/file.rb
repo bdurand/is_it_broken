@@ -25,11 +25,11 @@ module IsItBroken
         if correct_type?(stat)
           if @permission
             if @permission.include?(:read) && !stat.readable?
-              result.fail!("#{@path} is not readable by #{ENV['USER']}")
+              result.fail!("#{@path} is not readable by #{ENV["USER"]}")
             elsif @permission.include?(:write) && !stat.writable?
-              result.fail!("#{@path} is not writable by #{ENV['USER']}")
+              result.fail!("#{@path} is not writable by #{ENV["USER"]}")
             else
-              result.ok!("#{@path} exists with #{@permission.collect{|a| a.to_s}.join('/')} permission")
+              result.ok!("#{@path} exists with #{@permission.collect { |a| a.to_s }.join("/")} permission")
             end
           else
             result.ok!("#{@path} exists")

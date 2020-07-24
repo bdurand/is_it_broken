@@ -4,7 +4,7 @@ module IsItBroken
   # Base class for defining a check. Subclasses should override the `call` method.
   class Check
     attr_reader :options
-    
+
     def initialize(options = nil, &block)
       @options = (options ? options.dup : {})
       @block = block
@@ -19,13 +19,13 @@ module IsItBroken
       end
       result
     end
-    
+
     # Subclasses can override the call method to implement their own behavior.
     # The default behavior is to call the block passed to the constructor.
     def call(result)
       @block.call(result)
     end
-    
+
     def async?
       options[:async] != false
     end

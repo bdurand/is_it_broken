@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'socket'
-require 'timeout'
+require "socket"
+require "timeout"
 
 module IsItBroken
   # Check if a host is reachable and accepting connections on a specified port.
@@ -22,16 +22,14 @@ module IsItBroken
     end
 
     def call(status)
-      begin
-        ping(@host, @port)
-        status.ok("#{@alias} is accepting connections on port #{@port.inspect}")
-      rescue Errno::ECONNREFUSED
-        status.fail("#{@alias} is not accepting connections on port #{@port.inspect}")
-      rescue SocketError => e
-        status.fail("connection to #{@alias} on port #{@port.inspect} failed with '#{e.message}'")
-      rescue Timeout::Error
-        status.fail("#{@alias} did not respond on port #{@port.inspect} within #{@timeout} seconds")
-      end
+      ping(@host, @port)
+      status.ok("#{@alias} is accepting connections on port #{@port.inspect}")
+    rescue Errno::ECONNREFUSED
+      status.fail("#{@alias} is not accepting connections on port #{@port.inspect}")
+    rescue SocketError => e
+      status.fail("connection to #{@alias} on port #{@port.inspect} failed with '#{e.message}'")
+    rescue Timeout::Error
+      status.fail("#{@alias} did not respond on port #{@port.inspect} within #{@timeout} seconds")
     end
 
     def ping(host, port)

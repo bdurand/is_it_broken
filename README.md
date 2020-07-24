@@ -1,8 +1,10 @@
-## Check Application Health
+![Continuous Integration](https://github.com/bdurand/is_it_broken/workflows/Continuous%20Integration/badge.svg)
 
-[![Build Status](https://travis-ci.com/bdurand/is_it_broken.svg?branch=master)](https://travis-ci.com/bdurand/is_it_broken)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a92d5701481268471d53/maintainability)](https://codeclimate.com/github/bdurand/is_it_broken/maintainability)
 
+[![Ruby Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://github.com/testdouble/standard)
+
+# Is It Broken?
 
 The purpose of this gem is to provide a simple mechanism to define health checks for and application. Those health checks can then be monitored from a web endpoint or from application code.
 
