@@ -16,24 +16,30 @@ module IsItBroken
       @messages.all?(&:success?)
     end
 
+    def warning?
+      !success? && !failure?
+    end
+    
+    def failure?
+      @messages.any?(&:failure)
+    end
+
     def ok!(message)
       t = Time.now
-      @messages << IsItBroken::Message.new(true, message, t - @time)
+      @messages << IsItBroken::Message.new(:success, message, t - @time)
+      @time = t
+    end
+
+    def warn!(message)
+      t = Time.now
+      @messages << IsItBroken::Message.new(:warning, message, t - @time)
       @time = t
     end
 
     def fail!(message)
       t = Time.now
-      @messages << IsItBroken::Message.new(false, message, t - @time)
+      @messages << IsItBroken::Message.new(:failure, message, t - @time)
       @time = t
-    end
-
-    def to_s
-      text = []
-      messages.each do |m|
-        text << "#{m.success? ? "OK:  " : "FAIL:"} #{name} - #{m.text} (#{sprintf("%0.1f", m.time * 1000)}ms)"
-      end
-      text.join("\n")
     end
   end
 end

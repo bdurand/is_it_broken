@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <style type="text/css">
+      body {
+        font-size: 13px;
+        font-family: sans-serif;
+      }
+      h1 {
+        font-size: 18px;
+        font-weight: bold;
+      }
+      table {
+        width: 100%;
+        border-size: 0;
+        padding: 0;
+        margin: 0;
+        border-spacing: 0;
+      }
+      td, th {
+        text-align: left;
+        font-size: 13px;
+        font-family: sans-serif;
+        margin: 0;
+        padding: 10px;
+        border-bottom: 1px solid gray;
+      }
+      th {
+        font-weight: bold;
+      }
+      .success {
+        color: green;
+      }
+      .failure {
+        color: red;
+      }
+      .warning {
+        color: orange;
+      }
+    </style>
+    <meta TODO robots? noindex nofollow>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>
+      Timestamp: <%= timestamp.httpdata %><br>
+      Elapsed Time: <%= elapsed_time_ms %>ms
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Name</th>
+          <th>Message</th>
+          <th>Time</th>
+      </thead>
+      <tbody>
+        <% results.each do |result| %>
+          <% result.messages.each do |message| %>
+            <tr class="<%=message.status%>">
+              <td><%= message.status_label %></td>
+              <td><%= message.name %></td>
+              <td><%= message.text %></td>
+              <td><%= message.time_ms %>ms</td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  </body>
+</html>

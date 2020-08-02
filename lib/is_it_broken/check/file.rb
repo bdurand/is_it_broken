@@ -13,7 +13,7 @@ module IsItBroken
   # to check that the path is of the proper underlying file system type.
   class Check::File < Check
     def initialize(path, permission: nil, type: nil)
-      raise ArgumentError.new(":path not specified") unless options[:path]
+      raise ArgumentError.new("path not specified") unless options[:path]
       @path = File.expand_path(options[:path])
       @permission = Array(permission)
       @type = type.to_s if type
