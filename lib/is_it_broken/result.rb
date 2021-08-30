@@ -19,9 +19,9 @@ module IsItBroken
     def warning?
       !success? && !failure?
     end
-    
+
     def failure?
-      @messages.any?(&:failure)
+      @messages.any?(&:failure?)
     end
 
     def ok!(message)

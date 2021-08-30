@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe IsItBroken do
@@ -15,7 +17,7 @@ describe IsItBroken do
       results = IsItBroken.check(:foo)
       expect(results.size).to eq 1
       expect(results.first.success?).to eq true
-      expect(results.first.to_s).to match(/\AOK:   foo - bar/)
+      expect(results.first.messages.collect { |r| [r.status, r.text]}).to eq [[:success, "bar"]]
     end
 
     it "should be able to register blocks" do
@@ -23,7 +25,7 @@ describe IsItBroken do
       results = IsItBroken.check(:foo)
       expect(results.size).to eq 1
       expect(results.first.success?).to eq true
-      expect(results.first.to_s).to match(/\AOK:   foo - moo/)
+      expect(results.first.messages.collect { |r| [r.status, r.text]}).to eq [[:success, "moo"]]
     end
   end
 
@@ -34,8 +36,8 @@ describe IsItBroken do
       IsItBroken.group(:both, [:foo, :bar])
       results = IsItBroken.check(:both)
       expect(results.size).to eq 2
-      expect(results.first.to_s).to match(/\AOK:   foo - moo/)
-      expect(results.last.to_s).to match(/\AOK:   bar - boo/)
+      expect(results[0].messages.collect { |r| [r.status, r.text]}).to eq [[:success, "moo"]]
+      expect(results[1].messages.collect { |r| [r.status, r.text]}).to eq [[:success, "boo"]]
     end
 
     it "should not run duplicate checks" do
@@ -44,8 +46,8 @@ describe IsItBroken do
       IsItBroken.group(:both, [:foo, :bar])
       results = IsItBroken.check(:bar, :both, :foo, :both)
       expect(results.size).to eq 2
-      expect(results.first.to_s).to match(/\AOK:   bar - boo/)
-      expect(results.last.to_s).to match(/\AOK:   foo - moo/)
+      expect(results[0].messages.collect { |r| [r.status, r.text]}).to eq [[:success, "boo"]]
+      expect(results[1].messages.collect { |r| [r.status, r.text]}).to eq [[:success, "moo"]]
     end
   end
 
@@ -54,8 +56,8 @@ describe IsItBroken do
       IsItBroken.register(:foo) { |result| result.ok!("~#{Thread.current.object_id}~") }
       IsItBroken.register(:bar) { |result| result.ok!("~#{Thread.current.object_id}~") }
       results = IsItBroken.check(:foo, :bar)
-      thread_1 = results[0].to_s.match(/~(.+)~/)[1]
-      thread_2 = results[1].to_s.match(/~(.+)~/)[1]
+      thread_1 = results[0].messages.collect(&:text).join("\n").match(/~(.+)~/)[1]
+      thread_2 = results[1].messages.collect(&:text).join("\n").match(/~(.+)~/)[1]
       expect(thread_1).to_not eq thread_2
       expect(thread_1).to_not eq Thread.current.object_id.to_s
       expect(thread_2).to_not eq Thread.current.object_id.to_s
@@ -65,8 +67,8 @@ describe IsItBroken do
       IsItBroken.register(:foo, async: false) { |result| result.ok!("~#{Thread.current.object_id}~") }
       IsItBroken.register(:bar) { |result| result.ok!("~#{Thread.current.object_id}~") }
       results = IsItBroken.check(:foo, :bar)
-      thread_1 = results[0].to_s.match(/~(.+)~/)[1]
-      thread_2 = results[1].to_s.match(/~(.+)~/)[1]
+      thread_1 = results[0].messages.collect(&:text).join("\n").match(/~(.+)~/)[1]
+      thread_2 = results[1].messages.collect(&:text).join("\n").match(/~(.+)~/)[1]
       expect(thread_1).to_not eq thread_2
       expect(thread_1).to eq Thread.current.object_id.to_s
       expect(thread_2).to_not eq Thread.current.object_id.to_s

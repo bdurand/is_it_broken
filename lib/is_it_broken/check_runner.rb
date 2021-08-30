@@ -3,17 +3,17 @@
 module IsItBroken
   # Class for running a list of checks.
   class CheckRunner
-    class SyncRunner #:nodoc:
+    class SyncRunner # :nodoc:
       def initialize(name, check)
         @result = check.run(name)
       end
 
-      def value #:nodoc:
+      def value # :nodoc:
         @result
       end
     end
 
-    class AsyncRunner < Thread #:nodoc:
+    class AsyncRunner < Thread # :nodoc:
       def initialize(name, check)
         super { check.run(name) }
       end

@@ -46,7 +46,7 @@ module IsItBroken
     private
 
     # Perform an HTTP request and return the response
-    def perform_http_request(uri, redirects = []) #:nodoc:
+    def perform_http_request(uri, redirects = []) # :nodoc:
       request = http_request_class.new(uri.request_uri, @headers)
       request.basic_auth(@username, @password) if @username || @password
       http = instantiate_http
@@ -71,10 +71,10 @@ module IsItBroken
       location = response["Location"]
       if location && !location.include?(":")
         location = begin
-                     URI.parse(location)
-                   rescue
-                     nil
-                   end
+          URI.parse(location)
+        rescue
+          nil
+        end
         if location
           location.scheme = uri.scheme
           location.host = uri.host
@@ -84,7 +84,7 @@ module IsItBroken
     end
 
     # Create an HTTP object with the options set.
-    def instantiate_http(uri) #:nodoc:
+    def instantiate_http(uri) # :nodoc:
       http_class = if @proxy && @proxy[:host]
         Net::HTTP::Proxy(@proxy[:host], @proxy[:port], @proxy[:username], @proxy[:password])
       else
@@ -102,7 +102,7 @@ module IsItBroken
       http
     end
 
-    def http_request_class #:nodoc:
+    def http_request_class # :nodoc:
       case @method
       when :get
         Net::HTTP::Get

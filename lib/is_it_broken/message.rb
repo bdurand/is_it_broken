@@ -4,12 +4,12 @@ module IsItBroken
   # Class for holding the status and text for a response message.
   class Message
     STATUSES = [:success, :warning, :failure].freeze
-    
+
     attr_reader :status, :text, :time
 
     def initialize(status, text, time)
       unless STATUSES.include?(status)
-        raise ArgumentError.new("status must be one of #{STATUSES.join(', ')}")
+        raise ArgumentError.new("status must be one of #{STATUSES.join(", ")}")
       end
       @status = status
       @text = text
@@ -27,11 +27,11 @@ module IsItBroken
     def failure?
       @status == :failure
     end
-    
+
     def time_ms
-      (@time * 1000).round
+      (@time / 1000).round
     end
-    
+
     def status_label
       if success?
         "OK"

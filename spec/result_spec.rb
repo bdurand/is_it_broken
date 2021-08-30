@@ -2,6 +2,6 @@
 
 require "spec_helper"
 
-describe IsItBroken::Group do
+describe IsItBroken::Result do
   it "should be tested"
 end

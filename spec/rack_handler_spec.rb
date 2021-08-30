@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "spec_helper"
 
 describe IsItBroken::RackHandler do
@@ -26,7 +28,7 @@ describe IsItBroken::RackHandler do
   end
 
   it "should be able to customize the failure code" do
-    handler = IsItBroken::RackHandler.new(:foo, :bar, status: 418)
+    handler = IsItBroken::RackHandler.new(:foo, :bar, failure_status: 418)
     IsItBroken.register(:foo) { |result| result.ok!("check1") }
     IsItBroken.register(:bar) { |result| result.fail!("check2") }
     status, _headers, body = handler.call({})

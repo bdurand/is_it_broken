@@ -14,6 +14,7 @@ module IsItBroken
         @failure_status = options[:failure_status] if options[:failure_status]
         @warning_status = options[:warning_status] if options[:warning_status]
       end
+      @html_template = ERB.new(File.read(File.join(__dir__, "response.html.erb")))
     end
 
     def call(env)
@@ -25,13 +26,15 @@ module IsItBroken
 
     private
 
-    def render(results, timestamp, elapsed_time_ms) #:nodoc:
+    def render(results, timestamp, elapsed_time_ms) # :nodoc:
       content_type = response_content_type
-      
+
       headers = {
         "Content-Type" => "#{content_type}; charset=utf8",
-        "Cache-Control" => "no-cache",
-        "Date" => timestamp.httpdate
+        "Cache-Control" => "no-cache, no-store, max-age=0, must-revalidate",
+        "Date" => timestamp.httpdate,
+        "X-Robots" => "noindex, nofollow, nosnippet",
+        "Access-Control-Allow-Origin" => "*"
       }
 
       status = 200
@@ -41,22 +44,21 @@ module IsItBroken
         status = @warning_status
       end
 
-      body = nil
-      if content_type == "text/html"
-        body = render_html(results, timestamp, elapsed_time_ms)
+      body = if content_type == "text/html"
+        render_html(results, timestamp, elapsed_time_ms)
       elsif content_type == "application/json"
-        body = render_json(results, timestamp, elapsed_time_ms)
+        render_json(results, timestamp, elapsed_time_ms)
       else
-        body = render_text(results, timestamp, elapsed_time_ms)
+        render_text(results, timestamp, elapsed_time_ms)
       end
-      
+
       [status, headers, [body]]
     end
 
     def render_text(results, timestamp, elapsed_time_ms)
       info = []
       info << "Timestamp: #{timestamp.iso8601}"
-      info << "Elapsed Time: #{(elapsed_time * 1000).round}ms"
+      info << "Elapsed Time: #{(elapsed_time_ms).round}ms"
       info << "\n"
       results.each do |result|
         result.messages.each do |message|
@@ -67,13 +69,13 @@ module IsItBroken
     end
 
     def render_html(results, timestamp, elapsed_time_ms)
-      # TODO
+      @html_template.result(binding)
     end
 
     def render_json(results, timestamp, elapsed_time_ms)
       # TODO
     end
-    
+
     def response_content_type
       # TODO detect content type from request
       "text/plain"
