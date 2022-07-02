@@ -24,7 +24,13 @@ module IsItBroken
       @messages.any?(&:failure?)
     end
 
-    def ok!(message)
+    def status
+      return :failure if failure?
+      return :warning if warning?
+      :success
+    end
+
+    def success!(message)
       t = Time.now
       @messages << IsItBroken::Message.new(:success, message, t - @time)
       @time = t

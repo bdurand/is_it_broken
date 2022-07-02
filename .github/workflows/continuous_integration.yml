@@ -2,7 +2,7 @@ name: Continuous Integration
 on:
   push:
     branches:
-      - master
+      - main
       - actions-*
     tags:
       - v*
@@ -14,28 +14,21 @@ env:
   BUNDLE_RETRY: 3
 jobs:
   specs:
-    name: ${{ matrix.job }} ruby-${{ matrix.ruby }}
+    name: run tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        ruby: [ "2.2", "2.6", "2.7", "3.0" ]
-        job: [ rspec ]
-        include:
-          - ruby: "2.7"
-            job: standardrb
     steps:
       - name: checkout
         uses: actions/checkout@v2
       - name: set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: ${{ matrix.ruby }}
-      - name: install dependencies
-        run:  bundle install
+          ruby-version: 2.7
+      - name: setup bundler
+        run: |
+          bundle update
       - name: specs
-        if:   matrix.job == 'rspec'
         run:  bundle exec rake spec
       - name: standardrb
-        if:   matrix.job == 'standardrb'
         run:  bundle exec standardrb

@@ -29,10 +29,10 @@ module IsItBroken
             elsif @permission.include?(:write) && !stat.writable?
               result.fail!("#{@path} is not writable by #{ENV["USER"]}")
             else
-              result.ok!("#{@path} exists with #{@permission.collect { |a| a.to_s }.join("/")} permission")
+              result.success!("#{@path} exists with #{@permission.collect { |a| a.to_s }.join("/")} permission")
             end
           else
-            result.ok!("#{@path} exists")
+            result.success!("#{@path} exists")
           end
         else
           result.fail!("#{@path} is not a #{@type}")

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require "erb"
+require "json"
+require "rack"
 require "time"
 
 module IsItBroken
@@ -35,6 +38,14 @@ module IsItBroken
 
     def check(*names)
       CheckRunner.new(@configuration, names).run
+    end
+
+    def application_name
+      @application_name ||= "Application"
+    end
+
+    def application_name=(value)
+      @application_name = value.to_s.dup.freeze
     end
   end
 end

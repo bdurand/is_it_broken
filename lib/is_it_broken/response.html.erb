@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title><%= IsItBroken.application_name %> Status</title>
     <style type="text/css">
       body {
         font-size: 13px;
@@ -43,10 +43,10 @@
     <meta name="robots" content="noindex, nofollow, nosnippet">
   </head>
   <body>
-    <h1><%= title %></h1>
+    <h1><%= IsItBroken.application_name %> Status</h1>
     <p>
-      Timestamp: <%= timestamp.httpdata %><br>
-      Elapsed Time: <%= elapsed_time_ms %>ms
+      <div>Timestamp: <%= timestamp.httpdate %></div>
+      <div>Elapsed Time: <%= elapsed_time_ms %>ms</div>
     </p>
     <table>
       <thead>
@@ -61,7 +61,7 @@
           <% result.messages.each do |message| %>
             <tr class="<%=message.status%>">
               <td><%= message.status_label %></td>
-              <td><%= message.name %></td>
+              <td><%= result.name %></td>
               <td><%= message.text %></td>
               <td><%= message.time_ms %>ms</td>
             </tr>
