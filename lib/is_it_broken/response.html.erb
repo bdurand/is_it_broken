@@ -43,9 +43,9 @@
     <meta name="robots" content="noindex, nofollow, nosnippet">
   </head>
   <body>
-    <h1><%= IsItBroken.application_name %> Status</h1>
+    <h1><%= ERB::Util.h(IsItBroken.application_name) %> Status</h1>
     <p>
-      <div>Timestamp: <%= timestamp.httpdate %></div>
+      <div>Timestamp: <%= ERB::Util.h(timestamp.httpdate) %></div>
       <div>Elapsed Time: <%= elapsed_time_ms %>ms</div>
     </p>
     <table>
@@ -59,9 +59,9 @@
         <% results.each do |result| %>
           <% result.assertions.each do |assertion| %>
             <tr class="<%=assertion.status%>">
-              <td><%= assertion.status_label %></td>
-              <td><%= result.name %></td>
-              <td><%= assertion.message %></td>
+              <td><%= ERB::Util.h(assertion.status_label) %></td>
+              <td><%= ERB::Util.h(result.name) %></td>
+              <td><%= ERB::Util.h(assertion.message) %></td>
             </tr>
           <% end %>
         <% end %>

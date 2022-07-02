@@ -18,18 +18,20 @@ module IsItBroken
       @host = host
       @port = port
       @timeout = timeout
-      @display_name = (host_alias || @host)
+      @display_name = (host_alias || "#{@host}:#{@port}")
     end
 
     def call(result)
       ping(@host, @port)
-      result.success!("#{@display_name} is accepting connections on port #{@port.inspect}")
+      result.success!("#{@display_name} is accepting connections")
     rescue Errno::ECONNREFUSED
-      result.fail!("#{@display_name} is not accepting connections on port #{@port.inspect}")
+      result.fail!("#{@display_name} is not accepting connections")
+    rescue Errno::EHOSTUNREACH
+      result.fail!("#{@display_name} is not reachable")
     rescue SocketError => e
-      result.fail!("connection to #{@display_name} on port #{@port.inspect} failed with '#{e.message}'")
+      result.fail!("connection to #{@display_name} failed with #{e.message.inspect}")
     rescue Timeout::Error
-      result.fail!("#{@display_name} did not respond on port #{@port.inspect} within #{@timeout} seconds")
+      result.fail!("#{@display_name} did not respond within #{@timeout} seconds")
     end
 
     private
