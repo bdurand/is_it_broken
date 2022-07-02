@@ -6,6 +6,7 @@ require "rack"
 require "time"
 
 module IsItBroken
+  require_relative "is_it_broken/assertion"
   require_relative "is_it_broken/check"
   require_relative "is_it_broken/check/file"
   require_relative "is_it_broken/check/ping"
@@ -13,7 +14,6 @@ module IsItBroken
   require_relative "is_it_broken/check_runner"
   require_relative "is_it_broken/configuration"
   require_relative "is_it_broken/group"
-  require_relative "is_it_broken/message"
   require_relative "is_it_broken/rack_handler"
   require_relative "is_it_broken/result"
 

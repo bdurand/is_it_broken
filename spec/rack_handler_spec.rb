@@ -62,8 +62,8 @@ describe IsItBroken::RackHandler do
     expect(headers["Content-Type"]).to eq "application/json; charset=utf8"
     payload = JSON.parse(body.join(""))
     expect(payload["results"].first["name"]).to eq "foo"
-    expect(payload["results"].first["messages"].first["status"]).to include "success"
-    expect(payload["results"].first["messages"].first["text"]).to include "check1"
+    expect(payload["results"].first["assertions"].first["status"]).to include "success"
+    expect(payload["results"].first["assertions"].first["message"]).to include "check1"
   end
 
   it "should render json output if the request accepts JSON" do
@@ -74,8 +74,8 @@ describe IsItBroken::RackHandler do
     expect(headers["Content-Type"]).to eq "application/json; charset=utf8"
     payload = JSON.parse(body.join(""))
     expect(payload["results"].first["name"]).to eq "foo"
-    expect(payload["results"].first["messages"].first["status"]).to include "success"
-    expect(payload["results"].first["messages"].first["text"]).to include "check1"
+    expect(payload["results"].first["assertions"].first["status"]).to include "success"
+    expect(payload["results"].first["assertions"].first["message"]).to include "check1"
   end
 
   it "should render html output if the request path ends with .html" do

@@ -54,16 +54,14 @@
           <th>Status</th>
           <th>Name</th>
           <th>Message</th>
-          <th>Time</th>
       </thead>
       <tbody>
         <% results.each do |result| %>
-          <% result.messages.each do |message| %>
-            <tr class="<%=message.status%>">
-              <td><%= message.status_label %></td>
+          <% result.assertions.each do |assertion| %>
+            <tr class="<%=assertion.status%>">
+              <td><%= assertion.status_label %></td>
               <td><%= result.name %></td>
-              <td><%= message.text %></td>
-              <td><%= message.time_ms %>ms</td>
+              <td><%= assertion.message %></td>
             </tr>
           <% end %>
         <% end %>

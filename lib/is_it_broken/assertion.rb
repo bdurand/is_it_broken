@@ -2,19 +2,18 @@
 
 module IsItBroken
   # Class for holding the status and text for a response message.
-  class Message
+  class Assertion
     STATUSES = [:success, :warning, :failure].freeze
-    LABELS = {success: "SUCCESS", warning: "WARNING", failure: "FAILURE"}
+    LABELS = {success: "SUCCESS", warning: "WARNING", failure: "FAILURE"}.freeze
 
-    attr_reader :status, :text, :time
+    attr_reader :status, :message
 
-    def initialize(status, text, time)
+    def initialize(status, message)
       unless STATUSES.include?(status)
         raise ArgumentError.new("status must be one of #{STATUSES.collect(&:inspect).join(", ")}")
       end
       @status = status
-      @text = text
-      @time = time
+      @message = message
     end
 
     def success?
@@ -27,10 +26,6 @@ module IsItBroken
 
     def failure?
       @status == :failure
-    end
-
-    def time_ms
-      (@time / 1000).round
     end
 
     def status_label

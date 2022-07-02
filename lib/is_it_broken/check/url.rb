@@ -26,21 +26,21 @@ module IsItBroken
       @password = password
       @open_timeout = open_timeout
       @read_timeout = read_timeout
-      @alias = (url_alias || url)
+      @display_name = (url_alias || url)
       @allow_redirects = allow_redirects
       raise ArgumentError.new("Invalid method: #{method.inspect}") unless http_request_class
     end
 
-    def call(status)
+    def call(result)
       t = Time.now
       response = perform_http_request(@uri)
       if response.is_a?(Net::HTTPSuccess)
-        status.ok("#{@method.to_s.upcase} #{@alias} responded with response '#{response.code} #{response.message}'")
+        result.success!("#{@method.to_s.upcase} #{@display_name} responded with response '#{response.code} #{response.message}'")
       else
-        status.fail("#{@method.to_s.upcase} #{@alias} failed with response '#{response.code} #{response.message}'")
+        result.fail!("#{@method.to_s.upcase} #{@display_name} failed with response '#{response.code} #{response.message}'")
       end
     rescue Timeout::Error
-      status.fail("#{@method.to_s.upcase} #{@alias} timed out after #{Time.now - t} seconds")
+      result.fail!("#{@method.to_s.upcase} #{@display_name} timed out after #{Time.now - t} seconds")
     end
 
     private

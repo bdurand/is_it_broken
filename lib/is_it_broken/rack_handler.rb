@@ -66,8 +66,8 @@ module IsItBroken
       info << "Elapsed Time: #{elapsed_time_ms.round}ms"
       info << "\n"
       results.each do |result|
-        result.messages.each do |message|
-          info << "#{message.status_label} #{result.name} - #{message.text} (#{sprintf("%0.1f", message.time_ms)}ms)"
+        result.assertions.each do |assertion|
+          info << "#{assertion.status_label} #{result.name} - #{assertion.message}"
         end
       end
       info.join("\n")
@@ -80,13 +80,13 @@ module IsItBroken
     def render_json(results, timestamp, elapsed_time_ms)
       results_payload = []
       results.each do |result|
-        message_payloads = []
-        result.messages.each do |message|
-          message_payloads << {status: message.status, text: message.text, elapsed_time: message.time}
+        assertion_payloads = []
+        result.assertions.each do |assertion|
+          assertion_payloads << {status: assertion.status, message: assertion.message}
         end
-        results_payload << {name: result.name, status: result.status, messages: message_payloads}
+        results_payload << {name: result.name, status: result.status, assertions: assertion_payloads}
       end
-      payload = {timestamp: timestamp.iso8601, elapsed_time: elapsed_time_ms, results: results_payload}
+      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, results: results_payload}
       JSON.dump(payload)
     end
 

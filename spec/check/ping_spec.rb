@@ -3,5 +3,7 @@
 require "spec_helper"
 
 describe IsItBroken::Check::Ping do
-  it "should be tested"
+  it "can check if a port can be connected to on host"
+
+  it "can alias the host name in the message"
 end
