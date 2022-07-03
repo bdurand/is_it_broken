@@ -38,7 +38,7 @@ Checks can be defined with either a block or an instance of `IsItBroken::Check`.
 
 Make sure to setup timeouts if you implement checks that make network calls. Otherwise when something does go wrong, your monitoring endpoints will just hang indefinitely.
 
-If you open any connections, make sure you close them or your monitoring could become the source of problems.
+Make sure you close any files or network connections your checks may have opened or your monitoring could become the source of problems.
 
 Make sure you don't have any checks that will take longer to finish than your monitoring service can handle. Otherwise you risk getting a backup in requests caused by monitoring which over time could become a problem.
 

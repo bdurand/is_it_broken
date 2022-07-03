@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
     gemfiles/
     spec/
   ]
-  spec.files = Dir.chdir(File.expand_path("..", __FILE__)) do
+  spec.files = Dir.chdir(__dir__) do
     `git ls-files -z`.split("\x0").reject { |f| ignore_files.any? { |path| f.start_with?(path) } }
   end
   spec.bindir = "exe"
@@ -32,6 +32,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.required_ruby_version = ">=2.2"
+
+  spec.add_dependency "rack"
 
   spec.add_development_dependency "bundler"
 end

@@ -18,22 +18,26 @@ module IsItBroken
       @host = host
       @port = port
       @timeout = timeout
-      @alias = (host_alias || @host)
+      @display_name = (host_alias || "#{@host}:#{@port}")
     end
 
-    def call(status)
+    def call(result)
       ping(@host, @port)
-      status.ok("#{@alias} is accepting connections on port #{@port.inspect}")
+      result.success!("#{@display_name} is accepting connections")
     rescue Errno::ECONNREFUSED
-      status.fail("#{@alias} is not accepting connections on port #{@port.inspect}")
+      result.fail!("#{@display_name} is not accepting connections")
+    rescue Errno::EHOSTUNREACH
+      result.fail!("#{@display_name} is not reachable")
     rescue SocketError => e
-      status.fail("connection to #{@alias} on port #{@port.inspect} failed with '#{e.message}'")
+      result.fail!("connection to #{@display_name} failed with #{e.message.inspect}")
     rescue Timeout::Error
-      status.fail("#{@alias} did not respond on port #{@port.inspect} within #{@timeout} seconds")
+      result.fail!("#{@display_name} did not respond within #{@timeout} seconds")
     end
+
+    private
 
     def ping(host, port)
-      timeout(@timeout) do
+      Timeout.timeout(@timeout) do
         s = TCPSocket.new(host, port)
         s.close
       end

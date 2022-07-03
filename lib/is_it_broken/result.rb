@@ -2,38 +2,43 @@
 
 module IsItBroken
   # Class for holding the result of a check.
-  # TODO: add support for warning.
   class Result
-    attr_reader :name, :messages
+    attr_reader :name, :assertions
 
     def initialize(name)
-      @name = name
-      @messages = []
-      @time = Time.now
+      @name = name.to_s
+      @name = @name.dup.freeze unless @name.frozen?
+      @assertions = []
     end
 
     def success?
-      @messages.all?(&:success?)
+      @assertions.all?(&:success?)
     end
 
-    def ok!(message)
-      t = Time.now
-      @messages << IsItBroken::Message.new(true, message, t - @time)
-      @time = t
+    def warning?
+      !success? && !failure?
+    end
+
+    def failure?
+      @assertions.any?(&:failure?)
+    end
+
+    def status
+      return :failure if failure?
+      return :warning if warning?
+      :success
+    end
+
+    def success!(message)
+      @assertions << IsItBroken::Assertion.new(:success, message)
+    end
+
+    def warn!(message)
+      @assertions << IsItBroken::Assertion.new(:warning, message)
     end
 
     def fail!(message)
-      t = Time.now
-      @messages << IsItBroken::Message.new(false, message, t - @time)
-      @time = t
-    end
-
-    def to_s
-      text = []
-      messages.each do |m|
-        text << "#{m.success? ? "OK:  " : "FAIL:"} #{name} - #{m.text} (#{sprintf("%0.1f", m.time * 1000)}ms)"
-      end
-      text.join("\n")
+      @assertions << IsItBroken::Assertion.new(:failure, message)
     end
   end
 end

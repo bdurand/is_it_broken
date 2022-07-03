@@ -3,16 +3,14 @@ source "https://rubygems.org"
 # Cover security vulnerability of not loading github gems over HTTPS (just in case...)
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
-group :runtime do
-  gemspec
-end
+gemspec
 
 group :development, :test do
   gem "rake"
-  gem "rspec", "~> 3.9"
-
-  # Lock standard to a particular version, esp. cause it's still 0.x.x according to Semver
-  gem "standard", "0.4.7" if RUBY_VERSION.to_f >= 2.4
+  gem "rspec", "~> 3.10"
+  gem "webmock", "~> 3.14"
+  gem "standard", "1.0"
+  gem "simplecov", "~> 0.21", require: false
 end
 
 group :doc do

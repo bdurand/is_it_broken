@@ -3,44 +3,106 @@
 module IsItBroken
   # TODO document behavior and options
   # TODO add options for https_only, headers, and auth
-  # TODO add JSON output with .json suffix (or maybe need another option?)
-  # TODO is this the right class name?
+
   class RackHandler
-    def initialize(*checks)
-      @checks = checks.flatten
+    JSON_CONTENT_TYPE = "application/json"
+    TEXT_CONTENT_TYPE = "text/plain"
+    HTML_CONTENT_TYPE = "text/html"
+
+    def initialize(*check_names)
+      @check_names = check_names.flatten.dup
       @failure_status = 500
-      if @checks.last.is_a?(Hash)
-        options = @checks.last
-        @checks = @checks[0, @checks.size - 1]
-        @failure_status = options[:status] if options[:status]
+      @warning_status = 200
+      if @check_names.last.is_a?(Hash)
+        options = @check_names.pop
+        @failure_status = options[:failure_status] if options[:failure_status]
+        @warning_status = options[:warning_status] if options[:warning_status]
       end
+      @check_names.freeze
+      @html_template = ERB.new(File.read(File.join(__dir__, "response.html.erb")))
     end
 
     def call(env)
       start_time = Time.now
-      results = IsItBroken.check(@checks)
-      elapsed_time = Time.now - start_time
-      render(results, elapsed_time)
+      results = IsItBroken.check(@check_names)
+      elapsed_time_ms = ((Time.now - start_time) * 1000).round
+      render(env, results, start_time, elapsed_time_ms)
     end
 
     private
 
-    def render(results, elapsed_time) #:nodoc:
-      timestamp = Time.now
-      fail = results.all? { |s| s.success? }
+    def render(env, results, timestamp, elapsed_time_ms) # :nodoc:
+      content_type = response_content_type(env)
+
       headers = {
-        "Content-Type" => "text/plain; charset=utf8",
-        "Cache-Control" => "no-cache",
-        "Date" => timestamp.httpdate
+        "Content-Type" => "#{content_type}; charset=utf8",
+        "Cache-Control" => "no-cache, no-store, max-age=0, must-revalidate",
+        "Date" => timestamp.httpdate,
+        "X-Robots" => "noindex, nofollow, nosnippet",
+        "Access-Control-Allow-Origin" => "*"
       }
 
+      status = 200
+      if results.any?(&:failure?)
+        status = @failure_status
+      elsif results.any?(&:warning?)
+        status = @warning_status
+      end
+
+      body = if content_type == "text/html"
+        render_html(results, timestamp, elapsed_time_ms)
+      elsif content_type == "application/json"
+        render_json(results, timestamp, elapsed_time_ms)
+      else
+        render_text(results, timestamp, elapsed_time_ms)
+      end
+
+      [status, headers, [body]]
+    end
+
+    def render_text(results, timestamp, elapsed_time_ms)
       info = []
       info << "Timestamp: #{timestamp.iso8601}"
-      info << "Elapsed Time: #{(elapsed_time * 1000).round}ms"
+      info << "Elapsed Time: #{elapsed_time_ms.round}ms"
+      info << "\n"
+      results.each do |result|
+        result.assertions.each do |assertion|
+          info << "#{assertion.status_label} #{result.name} - #{assertion.message}"
+        end
+      end
+      info.join("\n")
+    end
 
-      code = (fail ? 200 : @failure_status)
+    def render_html(results, timestamp, elapsed_time_ms)
+      @html_template.result(binding)
+    end
 
-      [code, headers, [info.join("\n"), "\n\n", results.map(&:to_s).join("\n")]]
+    def render_json(results, timestamp, elapsed_time_ms)
+      results_payload = []
+      results.each do |result|
+        assertion_payloads = []
+        result.assertions.each do |assertion|
+          assertion_payloads << {status: assertion.status, message: assertion.message}
+        end
+        results_payload << {name: result.name, status: result.status, assertions: assertion_payloads}
+      end
+      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, results: results_payload}
+      JSON.dump(payload)
+    end
+
+    def response_content_type(env)
+      request = Rack::Request.new(env)
+
+      accept = request.env["HTTP_ACCEPT"].to_s.downcase
+      [JSON_CONTENT_TYPE, HTML_CONTENT_TYPE, TEXT_CONTENT_TYPE].each do |content_type|
+        return content_type if accept.include?(content_type)
+      end
+
+      return JSON_CONTENT_TYPE if request.path.end_with?(".json")
+      return TEXT_CONTENT_TYPE if request.path.end_with?(".txt")
+      return HTML_CONTENT_TYPE if request.path.end_with?(".html")
+
+      HTML_CONTENT_TYPE
     end
   end
 end

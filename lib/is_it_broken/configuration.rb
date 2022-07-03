@@ -37,7 +37,7 @@ module IsItBroken
     end
 
     # Returns [check, async] for the named check.
-    def fetch(name) #:nodoc:
+    def fetch(name) # :nodoc:
       @checks[name.to_s]
     end
   end

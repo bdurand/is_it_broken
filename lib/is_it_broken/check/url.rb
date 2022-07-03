@@ -17,6 +17,8 @@ module IsItBroken
   # * :read_timeout - Time in seconds to wait for data from the connection (defaults to 10 seconds)
   # * :alias - Alias used for reporting in case making the URL known to the world could provide a security risk.
   class Check::Url < Check
+    class RedirectError < StandardError; end
+
     def initialize(url, headers: {}, method: :get, proxy: nil, username: nil, password: nil, open_timeout: 5.0, read_timeout: 10.0, url_alias: nil, allow_redirects: false)
       @uri = URI.parse(url)
       @method = method.to_sym
@@ -26,42 +28,44 @@ module IsItBroken
       @password = password
       @open_timeout = open_timeout
       @read_timeout = read_timeout
-      @alias = (url_alias || url)
+      @display_name = (url_alias || url)
       @allow_redirects = allow_redirects
       raise ArgumentError.new("Invalid method: #{method.inspect}") unless http_request_class
     end
 
-    def call(status)
+    def call(result)
       t = Time.now
       response = perform_http_request(@uri)
       if response.is_a?(Net::HTTPSuccess)
-        status.ok("#{@method.to_s.upcase} #{@alias} responded with response '#{response.code} #{response.message}'")
+        result.success!("#{@method.to_s.upcase} #{@display_name} responded with '#{response.code} #{response.message}'")
       else
-        status.fail("#{@method.to_s.upcase} #{@alias} failed with response '#{response.code} #{response.message}'")
+        result.fail!("#{@method.to_s.upcase} #{@display_name} failed with '#{response.code} #{response.message}'")
       end
     rescue Timeout::Error
-      status.fail("#{@method.to_s.upcase} #{@alias} timed out after #{Time.now - t} seconds")
+      result.fail!("#{@method.to_s.upcase} #{@display_name} timed out after #{(Time.now - t).round(1)} seconds")
+    rescue RedirectError => e
+      result.fail!("#{@method.to_s.upcase} #{@display_name} failed with #{e.message}")
     end
 
     private
 
     # Perform an HTTP request and return the response
-    def perform_http_request(uri, redirects = []) #:nodoc:
+    def perform_http_request(uri, redirects = []) # :nodoc:
       request = http_request_class.new(uri.request_uri, @headers)
       request.basic_auth(@username, @password) if @username || @password
-      http = instantiate_http
+      http = instantiate_http(uri)
       response = http.start { http.request(request) }
-      if @allow_redirects && response.is_a?(Net::HTTPRedirect)
+      if @allow_redirects && response.is_a?(Net::HTTPRedirection)
         location = response_location(response)
         if redirects.size >= 5
-          raise "Too many redirects"
+          raise RedirectError, "too many redirects"
         elsif redirects.include?(location)
-          raise "Cicular redirect to #{location}"
+          raise RedirectError, "cicular redirect"
         elsif location.nil?
-          raise "Redirect to unknown location"
+          raise RedirectError, "redirect to unknown location"
         else
           redirects << location
-          response = perform_http_request(location, redirects)
+          response = perform_http_request(URI(location), redirects)
         end
       end
       response
@@ -71,10 +75,10 @@ module IsItBroken
       location = response["Location"]
       if location && !location.include?(":")
         location = begin
-                     URI.parse(location)
-                   rescue
-                     nil
-                   end
+          URI.parse(location)
+        rescue
+          nil
+        end
         if location
           location.scheme = uri.scheme
           location.host = uri.host
@@ -84,7 +88,7 @@ module IsItBroken
     end
 
     # Create an HTTP object with the options set.
-    def instantiate_http(uri) #:nodoc:
+    def instantiate_http(uri) # :nodoc:
       http_class = if @proxy && @proxy[:host]
         Net::HTTP::Proxy(@proxy[:host], @proxy[:port], @proxy[:username], @proxy[:password])
       else
@@ -102,12 +106,14 @@ module IsItBroken
       http
     end
 
-    def http_request_class #:nodoc:
+    def http_request_class # :nodoc:
       case @method
       when :get
         Net::HTTP::Get
       when :head
         Net::HTTP::Head
+      when :post
+        Net::HTTP::Post
       when :options
         Net::HTTP::Options
       when :trace

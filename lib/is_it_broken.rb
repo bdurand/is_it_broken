@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require "erb"
+require "json"
+require "rack"
 require "time"
 
 module IsItBroken
+  require_relative "is_it_broken/assertion"
   require_relative "is_it_broken/check"
   require_relative "is_it_broken/check/file"
   require_relative "is_it_broken/check/ping"
@@ -10,7 +14,6 @@ module IsItBroken
   require_relative "is_it_broken/check_runner"
   require_relative "is_it_broken/configuration"
   require_relative "is_it_broken/group"
-  require_relative "is_it_broken/message"
   require_relative "is_it_broken/rack_handler"
   require_relative "is_it_broken/result"
 
@@ -35,6 +38,14 @@ module IsItBroken
 
     def check(*names)
       CheckRunner.new(@configuration, names).run
+    end
+
+    def application_name
+      @application_name ||= "Application"
+    end
+
+    def application_name=(value)
+      @application_name = value.to_s.dup.freeze
     end
   end
 end

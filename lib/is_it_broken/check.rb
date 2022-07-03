@@ -15,7 +15,7 @@ module IsItBroken
       begin
         call(result)
       rescue => e
-        result.fail!(e.class.name)
+        result.fail!(e.inspect)
       end
       result
     end
