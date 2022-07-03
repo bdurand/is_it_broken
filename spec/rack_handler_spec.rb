@@ -61,6 +61,7 @@ describe IsItBroken::RackHandler do
     expect(status).to eq 200
     expect(headers["Content-Type"]).to eq "application/json; charset=utf8"
     payload = JSON.parse(body.join(""))
+    expect(payload["status"]).to eq "success"
     expect(payload["results"].first["name"]).to eq "foo"
     expect(payload["results"].first["assertions"].first["status"]).to include "success"
     expect(payload["results"].first["assertions"].first["message"]).to include "check1"
@@ -73,6 +74,7 @@ describe IsItBroken::RackHandler do
     expect(status).to eq 200
     expect(headers["Content-Type"]).to eq "application/json; charset=utf8"
     payload = JSON.parse(body.join(""))
+    expect(payload["status"]).to eq "success"
     expect(payload["results"].first["name"]).to eq "foo"
     expect(payload["results"].first["assertions"].first["status"]).to include "success"
     expect(payload["results"].first["assertions"].first["message"]).to include "check1"

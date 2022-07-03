@@ -79,14 +79,20 @@ module IsItBroken
 
     def render_json(results, timestamp, elapsed_time_ms)
       results_payload = []
+      results_status = :success
       results.each do |result|
         assertion_payloads = []
         result.assertions.each do |assertion|
           assertion_payloads << {status: assertion.status, message: assertion.message}
         end
         results_payload << {name: result.name, status: result.status, assertions: assertion_payloads}
+        if result.failure?
+          results_status = :failure
+        elsif result.warning? && results_status == :success
+          results_status = :warning
+        end
       end
-      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, results: results_payload}
+      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, status: results_status, results: results_payload}
       JSON.dump(payload)
     end
 
