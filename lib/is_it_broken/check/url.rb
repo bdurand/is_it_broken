@@ -17,6 +17,8 @@ module IsItBroken
   # * :read_timeout - Time in seconds to wait for data from the connection (defaults to 10 seconds)
   # * :alias - Alias used for reporting in case making the URL known to the world could provide a security risk.
   class Check::Url < Check
+    class RedirectError < StandardError; end
+
     def initialize(url, headers: {}, method: :get, proxy: nil, username: nil, password: nil, open_timeout: 5.0, read_timeout: 10.0, url_alias: nil, allow_redirects: false)
       @uri = URI.parse(url)
       @method = method.to_sym
@@ -35,12 +37,14 @@ module IsItBroken
       t = Time.now
       response = perform_http_request(@uri)
       if response.is_a?(Net::HTTPSuccess)
-        result.success!("#{@method.to_s.upcase} #{@display_name} responded with response '#{response.code} #{response.message}'")
+        result.success!("#{@method.to_s.upcase} #{@display_name} responded with '#{response.code} #{response.message}'")
       else
-        result.fail!("#{@method.to_s.upcase} #{@display_name} failed with response '#{response.code} #{response.message}'")
+        result.fail!("#{@method.to_s.upcase} #{@display_name} failed with '#{response.code} #{response.message}'")
       end
     rescue Timeout::Error
-      result.fail!("#{@method.to_s.upcase} #{@display_name} timed out after #{Time.now - t} seconds")
+      result.fail!("#{@method.to_s.upcase} #{@display_name} timed out after #{(Time.now - t).round(1)} seconds")
+    rescue RedirectError => e
+      result.fail!("#{@method.to_s.upcase} #{@display_name} failed with #{e.message}")
     end
 
     private
@@ -49,19 +53,19 @@ module IsItBroken
     def perform_http_request(uri, redirects = []) # :nodoc:
       request = http_request_class.new(uri.request_uri, @headers)
       request.basic_auth(@username, @password) if @username || @password
-      http = instantiate_http
+      http = instantiate_http(uri)
       response = http.start { http.request(request) }
-      if @allow_redirects && response.is_a?(Net::HTTPRedirect)
+      if @allow_redirects && response.is_a?(Net::HTTPRedirection)
         location = response_location(response)
         if redirects.size >= 5
-          raise "Too many redirects"
+          raise RedirectError, "too many redirects"
         elsif redirects.include?(location)
-          raise "Cicular redirect to #{location}"
+          raise RedirectError, "cicular redirect"
         elsif location.nil?
-          raise "Redirect to unknown location"
+          raise RedirectError, "redirect to unknown location"
         else
           redirects << location
-          response = perform_http_request(location, redirects)
+          response = perform_http_request(URI(location), redirects)
         end
       end
       response
@@ -108,6 +112,8 @@ module IsItBroken
         Net::HTTP::Get
       when :head
         Net::HTTP::Head
+      when :post
+        Net::HTTP::Post
       when :options
         Net::HTTP::Options
       when :trace

@@ -37,7 +37,7 @@ module IsItBroken
     private
 
     def ping(host, port)
-      timeout(@timeout) do
+      Timeout.timeout(@timeout) do
         s = TCPSocket.new(host, port)
         s.close
       end

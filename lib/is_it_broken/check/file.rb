@@ -13,22 +13,21 @@ module IsItBroken
   # to check that the path is of the proper underlying file system type.
   class Check::File < Check
     def initialize(path, permission: nil, type: nil, file_alias: nil)
-      raise ArgumentError.new("path not specified") unless options[:path]
-      @path = File.expand_path(options[:path])
-      @permission = Array(permission)
+      @path = ::File.expand_path(path)
+      @permission = Array(permission).collect { |p| p.to_sym } & [:read, :write]
       @type = type.to_s if type
       @display_name = (file_alias || @path)
     end
 
     def call(result)
-      stat = File.stat(@path) if File.exist?(@path)
+      stat = ::File.stat(@path) if ::File.exist?(@path)
       if stat
         if correct_type?(stat)
-          if @permission
+          if @permission.size > 0
             if @permission.include?(:read) && !stat.readable?
-              result.fail!("#{@display_name} is not readable by #{ENV["USER"]}")
+              result.fail!("#{@display_name} is not readable by #{ENV.fetch("USER", "current user")}")
             elsif @permission.include?(:write) && !stat.writable?
-              result.fail!("#{@display_name} is not writable by #{ENV["USER"]}")
+              result.fail!("#{@display_name} is not writable by #{ENV.fetch("USER", "current user")}")
             else
               result.success!("#{@display_name} exists with #{@permission.collect { |a| a.to_s }.join("/")} permission")
             end
