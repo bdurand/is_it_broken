@@ -104,14 +104,14 @@ module IsItBroken
     def response_content_type(env)
       request = Rack::Request.new(env)
 
+      return JSON_CONTENT_TYPE if request.path.end_with?(".json")
+      return TEXT_CONTENT_TYPE if request.path.end_with?(".txt")
+      return HTML_CONTENT_TYPE if request.path.end_with?(".html")
+
       accept = request.env["HTTP_ACCEPT"].to_s.downcase
       [JSON_CONTENT_TYPE, HTML_CONTENT_TYPE, TEXT_CONTENT_TYPE].each do |content_type|
         return content_type if accept.include?(content_type)
       end
-
-      return JSON_CONTENT_TYPE if request.path.end_with?(".json")
-      return TEXT_CONTENT_TYPE if request.path.end_with?(".txt")
-      return HTML_CONTENT_TYPE if request.path.end_with?(".html")
 
       HTML_CONTENT_TYPE
     end
