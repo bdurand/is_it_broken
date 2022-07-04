@@ -10,15 +10,20 @@ module IsItBroken
     HTML_CONTENT_TYPE = "text/html"
 
     def initialize(*check_names)
-      @check_names = check_names.flatten.dup
       @failure_status = 500
       @warning_status = 200
+      @check_names = check_names.flatten.dup
+
       if @check_names.last.is_a?(Hash)
         options = @check_names.pop
         @failure_status = options[:failure_status] if options[:failure_status]
         @warning_status = options[:warning_status] if options[:warning_status]
       end
-      @check_names.freeze
+
+      if @check_names.empty?
+        @check_names = IsItBroken.check_names
+      end
+
       @html_template = ERB.new(File.read(File.join(__dir__, "response.html.erb")))
     end
 
