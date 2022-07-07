@@ -39,7 +39,7 @@ module IsItBroken
     def check(*names)
       CheckRunner.new(@configuration, names).run
     end
-    
+
     def check_names
       @configuration.check_names
     end

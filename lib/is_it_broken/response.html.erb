@@ -38,12 +38,39 @@
       .warning {
         color: orange;
       }
+      .banner {
+        margin: 1rem 0;
+        border-width: 1px;
+        border-style: solid;
+        padding: 1rem;
+        font-weight: bold;
+        font-size: larger;
+        text-align: center;
+      }
+      .banner.success {
+        color: white;
+        background-color: green;
+        border-color: green;
+      }
+      .banner.warning {
+        color: white;
+        background-color: orange;
+        border-color: orange;
+      }
+      .banner.failure {
+        color: white;
+        background-color: red;
+        border-color: red;
+      }
     </style>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow, nosnippet">
+    <meta name="format-detection" content="telephone=no">
   </head>
   <body>
-    <h1><%= ERB::Util.h(IsItBroken.application_name) %> Status</h1>
+    <div class="banner <%= status %>">
+      <%= ERB::Util.h(IsItBroken.application_name) %> Status: <%= status.to_s.upcase %>
+    </div>
     <p>
       <div>Timestamp: <%= ERB::Util.h(timestamp.httpdate) %></div>
       <div>Elapsed Time: <%= elapsed_time_ms %>ms</div>

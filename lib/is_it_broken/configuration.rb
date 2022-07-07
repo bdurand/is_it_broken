@@ -40,7 +40,7 @@ module IsItBroken
     def fetch(name) # :nodoc:
       @checks[name.to_s]
     end
-    
+
     def check_names
       @checks.keys
     end

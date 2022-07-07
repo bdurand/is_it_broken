@@ -47,26 +47,30 @@ module IsItBroken
         "Access-Control-Allow-Origin" => "*"
       }
 
-      status = 200
+      status_code = 200
+      status = :success
       if results.any?(&:failure?)
-        status = @failure_status
+        status = :failure
+        status_code = @failure_status
       elsif results.any?(&:warning?)
-        status = @warning_status
+        status_code = @warning_status
+        status = :warning
       end
 
       body = if content_type == "text/html"
-        render_html(results, timestamp, elapsed_time_ms)
+        render_html(status, results, timestamp, elapsed_time_ms)
       elsif content_type == "application/json"
-        render_json(results, timestamp, elapsed_time_ms)
+        render_json(status, results, timestamp, elapsed_time_ms)
       else
-        render_text(results, timestamp, elapsed_time_ms)
+        render_text(status, results, timestamp, elapsed_time_ms)
       end
 
-      [status, headers, [body]]
+      [status_code, headers, [body]]
     end
 
-    def render_text(results, timestamp, elapsed_time_ms)
+    def render_text(status, results, timestamp, elapsed_time_ms)
       info = []
+      info << status.to_s.upcase
       info << "Timestamp: #{timestamp.iso8601}"
       info << "Elapsed Time: #{elapsed_time_ms.round}ms"
       info << "\n"
@@ -78,26 +82,20 @@ module IsItBroken
       info.join("\n")
     end
 
-    def render_html(results, timestamp, elapsed_time_ms)
+    def render_html(status, results, timestamp, elapsed_time_ms)
       @html_template.result(binding)
     end
 
-    def render_json(results, timestamp, elapsed_time_ms)
+    def render_json(status, results, timestamp, elapsed_time_ms)
       results_payload = []
-      results_status = :success
       results.each do |result|
         assertion_payloads = []
         result.assertions.each do |assertion|
           assertion_payloads << {status: assertion.status, message: assertion.message}
         end
         results_payload << {name: result.name, status: result.status, assertions: assertion_payloads}
-        if result.failure?
-          results_status = :failure
-        elsif result.warning? && results_status == :success
-          results_status = :warning
-        end
       end
-      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, status: results_status, results: results_payload}
+      payload = {timestamp: timestamp.iso8601, elapsed_time_ms: elapsed_time_ms, status: status, results: results_payload}
       JSON.dump(payload)
     end
 
